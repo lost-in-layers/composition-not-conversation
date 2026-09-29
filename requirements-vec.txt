@@ -1,0 +1,12 @@
+accelerate
+diffusers
+huggingface_hub
+numpy
+pillow
+pyyaml
+requests
+safetensors
+sentencepiece
+torch
+tqdm
+transformers

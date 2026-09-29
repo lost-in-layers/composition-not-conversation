@@ -1,0 +1,13 @@
+You are given visual RGB images and a question about it.
+
+[[IMAGE_MANIFEST]]
+Question:
+[[QUESTION]]
+
+Your objective is to answer the question using the supplied visual evidence.
+
+Requirements:
+1. Consider every supplied image that is relevant to the question.
+2. Return only the answer, normally as a short phrase. No preamble, no
+   restatement of the question, no explanation of how you got there.
+3. Do not invent details that are not supported by the supplied evidence.

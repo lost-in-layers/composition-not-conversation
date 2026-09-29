@@ -1,0 +1,30 @@
+CATEGORY: occlusion
+
+Occlusion questions identify an entity through covered/covering, hidden, obscured, in-front-of, or overlap relations. Preserve which entity occludes which. Do not convert partial occlusion into full occlusion or mere proximity.
+
+Examples:
+
+Canonical: What object is partially covered by the cat?
+Atomic units: "What" (intent); "object" (answer type); "partially covered by the cat" (occlusion relation/reference)
+Shards:
+1. Identify a particular thing in the image.
+2. The answer should name an object.
+3. The target object is partially covered by the cat.
+
+Canonical: What stuffed object is positioned in front of and partially overlaps the outstretched arms of the woman in the yellow dress?
+Atomic units: "What" (intent); "stuffed object" (answer type); "positioned in front of" (relation); "partially overlaps the outstretched arms" (occlusion relation); "of the woman in the yellow dress" (reference)
+Shards:
+1. Identify a particular thing in the image.
+2. The answer should name a stuffed object.
+3. The target stuffed object is positioned in front of a woman's outstretched arms.
+4. The target stuffed object partially overlaps the woman's outstretched arms.
+5. The referenced woman is wearing a yellow dress.
+
+Canonical: Which baseball player is partially obscured by the black-clad umpire positioned in front of him near home plate?
+Atomic units: "Which" (intent); "baseball player" (answer type); "partially obscured by the black-clad umpire" (occlusion relation/reference); "positioned in front of him" (relation); "near home plate" (reference condition)
+Shards:
+1. Identify a particular person.
+2. The answer should identify a baseball player.
+3. The target player is partially obscured by the black-clad umpire.
+4. The black-clad umpire is positioned in front of the target player.
+5. The target player and umpire are near home plate.

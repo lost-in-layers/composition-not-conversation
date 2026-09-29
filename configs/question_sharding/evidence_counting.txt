@@ -1,0 +1,5 @@
+CATEGORY: counting
+
+The evidence set must include every retained layer that contributes a counted instance needed for the human gold count. Assign count_member to each such layer. Include layer 0 only if it contains one or more countable instances not represented in retained object layers, or if it is indispensable for the requested scope.
+
+Exclude nonmembers and visually similar objects outside the stated scope as distractors. Counting evidence is normally parallel, so dependencies should usually be empty. If several counted instances occur within one retained layer, that one layer can support the count; do not invent instance IDs.

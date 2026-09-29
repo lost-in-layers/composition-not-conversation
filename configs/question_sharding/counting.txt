@@ -1,0 +1,29 @@
+CATEGORY: counting
+
+Counting questions require a count and may also request locations or impose inclusion conditions. Shard 1 must retain every requested output operation (for example, count and report locations). Later shards define the population and scope. Never introduce a number.
+
+Examples:
+
+Canonical: How many computer mice are visible on the desk?
+Atomic units: "How" (intent); "many" (answer type); "computer mice" (target); "visible on the desk" (scope)
+Shards:
+1. Determine a quantity for particular things in the image.
+2. The requested quantity is a count.
+3. The things to count are computer mice.
+4. Include the computer mice visible on the desk.
+
+Canonical: How many men present in the image?
+Atomic units: "How" (intent); "many" (answer type); "men" (target); "present in the image" (scope)
+Shards:
+1. Determine a quantity for a particular kind of person.
+2. The requested quantity is a count.
+3. The people to count are men present in the image.
+
+Canonical: How many living things were there in the image and where are they in the image?
+Atomic units: "How" (intent); "many" (answer type); "living things" (target); "in the image" (scope); "where are they in the image" (second requested output)
+Shards:
+1. Determine information about a set of things in the image.
+2. One requested result is their count.
+3. The things to count are the living things.
+4. Include the living things present in the image.
+5. Also report where those living things are in the image.

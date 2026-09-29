@@ -1,0 +1,50 @@
+You are grading an answer to a visual question. You are given the whole
+conversation in which the answer was produced. Decide whether the assistant
+gave the reference answer at any point in it.
+
+Question:
+[[QUESTION]]
+
+Reference answer:
+[[REFERENCE_ANSWER]]
+
+What a valid answer looks like:
+[[ANSWER_DESCRIPTION]]
+
+Conversation:
+[[CONVERSATION]]
+
+Rules:
+- [Assistant Turns Only] Grade only what the assistant says. The user turns
+  restate the question and feed it in pieces; text appearing in a user turn is
+  never evidence that the assistant answered.
+- [Any Turn Counts] The assistant is correct if it offers the reference answer
+  at any point in the conversation — including as a tentative or hedged
+  candidate ("it might be a computer mouse"), and even if it later revises or
+  withdraws it.
+- [Proposing, Not Asking] A turn that only requests more information, without
+  putting forward any candidate answer, is not an answer.
+- [Meaning, Not Wording] Grade on meaning. Differences in phrasing, article use,
+  capitalization, punctuation, plurality, or verbosity do not matter.
+  "A computer mouse." and "mouse" are the same answer.
+- [Reference Is Authoritative] The reference answer is correct by definition. Do
+  not second-guess it against your own reading of the question or of the images.
+- [Partial Reference Credit] The reference may contain extra descriptive detail
+  beyond the question's core demand. The candidate is correct when it matches
+  every part the question actually asks for, even if it omits extra colour.
+- [Substantive Differences Fail] A different object, a different colour, a
+  different count, or a different spatial relation is incorrect.
+
+Set `answer_span` to the assistant's own words that gave the answer, so the turn
+it came from can be located. It must be a contiguous stretch of assistant text
+copied character for character out of the conversation above — not a paraphrase,
+not a normalized or tidied version, and not your own summary. If no short span
+carries the answer on its own, copy the whole sentence that does. Use the empty
+string when the assistant never offered the reference answer.
+
+`answer_span` is a citation, not a verdict: never change `is_correct` because a
+clean span was hard to find, and never widen a span to make an answer look
+better than it was.
+
+You must output your answer in the following JSON format:
+{"reasoning": "<one short sentence>", "answer_span": "<verbatim assistant text, or \"\">", "is_correct": true or false}

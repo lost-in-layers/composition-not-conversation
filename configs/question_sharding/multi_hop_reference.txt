@@ -1,0 +1,30 @@
+CATEGORY: multi_hop_reference
+
+Multi-hop questions identify the answer through a chain of at least two references or relations. Shard 1 states the answer type. Subsequent shards expose the chain one link at a time while naming target and intermediate entities clearly. Preserve chain direction and do not collapse away an intermediate reference.
+
+Examples:
+
+Canonical: What object is to the right of the object underneath the cat?
+Atomic units: "What" (intent); "object" (answer type); "to the right of the object" (target relation); "underneath the cat" (intermediate reference relation)
+Shards:
+1. Identify a particular thing in the image.
+2. The answer should name an object.
+3. The target object is to the right of an intermediate object.
+4. The intermediate object is underneath the cat.
+
+Canonical: What fruit is being held by the woman who is positioned to the left of the young child?
+Atomic units: "What" (intent); "fruit" (answer type); "being held by the woman" (target relation/reference); "positioned to the left of the young child" (intermediate relation)
+Shards:
+1. Identify a particular thing in the image.
+2. The answer should name a fruit.
+3. The target fruit is being held by a woman.
+4. The referenced woman is positioned to the left of the young child.
+
+Canonical: Which street fixture is positioned to the right of the bench that appears below and to the left of the man standing in the upper-right part of the scene?
+Atomic units: "Which" (intent); "street fixture" (answer type); "positioned to the right of the bench" (target relation/reference); "below" (bench relation); "to the left of the man" (bench relation/reference); "standing in the upper-right part of the scene" (man condition)
+Shards:
+1. Identify a particular thing in the scene.
+2. The answer should name a street fixture.
+3. The target street fixture is positioned to the right of a bench.
+4. The referenced bench appears below and to the left of a man.
+5. The referenced man is standing in the upper-right part of the scene.

@@ -1,0 +1,192 @@
+run_name: flux2_qil_decomposition_pilot
+root_dir: data/vec_pilot
+models_dir: models
+log_dir: logs/vec_runs
+
+huggingface:
+  cache_dir: models/huggingface
+  local_files_only: false
+  token_env: HF_TOKEN
+
+prompt_generation:
+  model_id: Qwen/Qwen3-8B
+  reviewer_model_id: Qwen/Qwen3-30B-A3B-Instruct-2507
+  prompts_per_category: 100
+  prompts_per_call: 10
+  max_attempts_per_bucket: 8
+  temperature: 0.85
+  top_p: 0.92
+  max_new_tokens: 4096
+  difficulty_counts:
+    "1": 20
+    "2": 20
+    "3": 20
+    "4": 20
+    "5": 20
+
+diffusion:
+  model_id: black-forest-labs/FLUX.2-dev
+  width: 1024
+  height: 1024
+  num_inference_steps: 28
+  guidance_scale: 3.5
+  seed: 20260702
+  torch_dtype: bfloat16
+  negative_prompt_base: watermark, real brand, celebrity, copyrighted character, distorted text, malformed objects, low resolution, motion blur
+
+qwen_image_layered:
+  model_id: Qwen/Qwen-Image-Layered
+  layers:
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+  resolution: 640
+  num_inference_steps: 30
+  true_cfg_scale: 4.0
+  seed: 777
+  torch_dtype: bfloat16
+  prompt: separate the image into clean transparent layers for foreground objects, readable text, occluders, relation-critical objects, and background
+
+categories:
+  single_evidence_control:
+    display_name: Single-evidence control
+    goal: Test whether Qwen-Image-Layered can isolate one salient object or one simple visual attribute in a clean synthetic scene.
+    evidence_targets:
+      - one central target object
+      - one obvious attribute such as color, material, shape, or pattern
+      - minimal background and no distractor objects
+    visual_style: clean synthetic photorealistic object study, simple surface, high object-background contrast
+    diversity_requirements:
+      - vary object families, surfaces, camera angle, lighting, color palette, and background material
+      - do not reuse the same sentence opening more than twice
+      - avoid all prompts looking like "a single object on a plain table"
+    difficulty_guidance:
+      "1": one centered object on a plain surface
+      "2": one object with a simple attribute and mild perspective
+      "3": one object with texture/material detail
+      "4": object on a slightly richer but uncluttered background
+      "5": object has subtle attribute detail but still cleanly separated
+
+  ocr_heavy:
+    display_name: OCR-heavy
+    goal: Test whether readable text, labels, signs, stickers, and markings become useful layers.
+    evidence_targets:
+      - one target text region with a short synthetic non-brand string
+      - optional distractor text at higher difficulty
+      - text should be readable in the generated image
+    visual_style: clear synthetic photorealistic product, sign, jersey, poster, package, screen, or label scene
+    allowed_text_strings:
+      - NOVA
+      - GATE 42
+      - BLUE-7
+      - ROOM 18
+      - ALTO
+      - KILO
+      - EXIT B
+      - LIMA
+      - ZEN
+      - TAXI 5
+      - DELTA
+      - RIVER 9
+      - MESA
+      - UNIT 12
+      - ORBIT
+    diversity_requirements:
+      - vary where text appears: label, sticker, sign, screen, jersey, menu, tag, crate, notebook
+      - vary viewpoint, text size, color contrast, and surrounding object type
+      - never use real brands or famous logos
+    difficulty_guidance:
+      "1": large front-facing text, no distractor text
+      "2": medium text on a simple object or sign
+      "3": smaller text, mild rotation, or perspective
+      "4": one or two distractor text regions or partial occlusion
+      "5": small target text with clutter or mild blur, still readable
+
+  occlusion_overlap:
+    display_name: Occlusion and overlap
+    goal: Test whether partly hidden or overlapping objects are separated into different layers.
+    evidence_targets:
+      - one target object
+      - one occluder or overlapping object
+      - visible target fraction should be controllable from easy to hard
+    visual_style: synthetic photorealistic tabletop, shelf, desk, counter, wall, or floor scene with clear depth ordering
+    diversity_requirements:
+      - vary occluder type, target type, material, color contrast, and occlusion amount
+      - include both hard opaque occlusion and transparent overlap in some prompts
+      - avoid chaotic scenes at low difficulty
+    difficulty_guidance:
+      "1": slight overlap with most of target visible
+      "2": about 25 percent occlusion
+      "3": about 40 percent occlusion
+      "4": about 55 percent occlusion or multiple overlaps
+      "5": heavy occlusion but target still identifiable
+
+  multi_object_relations:
+    display_name: Multi-object relations
+    goal: Test whether relation-critical objects are separated enough for questions like held-by, behind, inside, on top of, under, or attached-to.
+    evidence_targets:
+      - at least two relation-critical objects
+      - the relation should be visually unambiguous
+      - optional anchor object at higher difficulty
+    visual_style: synthetic photorealistic small scene with mannequins, containers, shelves, desks, boxes, tools, bags, and signs
+    diversity_requirements:
+      - vary relations instead of repeating holding only
+      - use mannequins or simple human-like figures when a human relation is needed
+      - keep relation visually legible and avoid real people/faces when possible
+    difficulty_guidance:
+      "1": one simple relation between two objects
+      "2": relation plus one easy anchor object
+      "3": two-step relation such as object inside box under table
+      "4": relation with one distractor relation nearby
+      "5": three-step relation with similar objects but still clear
+
+  clutter_distractor:
+    display_name: Clutter and distractors
+    goal: Test whether Qwen-Image-Layered can separate target evidence from many irrelevant but visually similar objects.
+    evidence_targets:
+      - one target object or target text region
+      - multiple distractors, increasing with difficulty
+      - target should remain visible and answerable
+    visual_style: synthetic photorealistic tabletop, shelf, locker, workbench, bulletin board, or market display scene
+    diversity_requirements:
+      - vary distractor count, similarity, layout, object scale, and target uniqueness
+      - include some scenes with similar-color distractors and some with similar-shape distractors
+      - do not make prompts all start with "a cluttered tabletop scene"
+    difficulty_guidance:
+      "1": 4 to 6 distractors
+      "2": 8 to 12 distractors
+      "3": 15 to 20 distractors
+      "4": 25 to 35 distractors with similar items
+      "5": 40 or more distractors, target still visible
+
+  visual_knowledge:
+    display_name: Visual plus knowledge
+    goal: Test whether symbolic evidence such as icons and warning signs can be isolated before a later knowledge-style question maps symbol to meaning.
+    evidence_targets:
+      - one target symbol, icon, badge, or sign
+      - optional surrounding object or location context
+      - symbol should be simple and clear
+    visual_style: synthetic photorealistic sign, box, wall sticker, equipment tag, dashboard, folder, or notice scene
+    symbol_meanings:
+      green recycling icon: recycling
+      yellow lightning bolt: electrical hazard
+      red medical cross: medical aid
+      flame warning icon: fire safety
+      wheelchair accessibility icon: accessibility
+      water droplet icon: water source
+      fork and knife icon: food service
+      leaf eco icon: eco-friendly
+      wifi icon: wireless access
+      skull warning icon: toxic hazard
+    diversity_requirements:
+      - vary symbol carrier: sign, sticker, box, panel, tag, badge, notice, equipment label
+      - avoid real institutional logos
+      - keep the symbol visible enough to be decomposed
+    difficulty_guidance:
+      "1": one large symbol on a simple sign
+      "2": symbol on an object with simple background
+      "3": symbol with mild perspective or small surrounding context
+      "4": symbol with distractor icons or partial occlusion
+      "5": smaller symbol in a cluttered but readable scene

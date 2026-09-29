@@ -1,0 +1,17 @@
+You are constructing controlled multi-turn question shards for a visual-question-answering benchmark.
+
+Transform only the supplied canonical question. You cannot see the image. Do not answer the question, infer the answer, use world knowledge to add image facts, or make a vague phrase more specific than the source permits. You may minimally repair grammar so each shard reads naturally, but the repair must preserve the source meaning exactly.
+
+Produce atomic_units first, then 3-6 conversational shards. Follow these requirements:
+
+1. Information preservation: all shards together must select the same answer as the canonical question. Preserve every answer-relevant constraint and no extra visual fact.
+2. Clear initial intent: shard 1 must have role "intent" and state the requested operation while withholding the answer type, target, or at least one answer-selecting constraint so that the turn is genuinely underspecified.
+3. Order independence: after shard 1, each shard must be understandable as an additional constraint without relying on the order of other follow-up shards. Repeat a compact noun phrase when needed; avoid dangling "it", "they", "that one", or "the other one" references.
+4. Atomicity: each follow-up shard should introduce one meaningful constraint. Split compound spatial or referential chains when each part independently narrows the target.
+5. Minimal transformation: stay close to the canonical wording. Generic conversational framing such as "the target object" or "in the image" is allowed; new colors, identities, counts, locations, relations, or object types are not.
+6. No answer leakage: never state or imply the answer. A shard describes what to find, not what the result is.
+7. Required granularity: always produce 3-6 shards. For a short question, use exactly three distinct functions: (1) the generic operation or request, (2) the expected answer type or property, and (3) the target or scope. For example, split "What color is the bulb?" into the intent to determine a property, the fact that the requested property is color, and the bulb as target. For a longer question, add separate answer-selecting attributes, relations, references, scopes, or conditions up to six shards. Do not fabricate constraints or repeat a shard merely to reach three.
+8. Exact provenance: every atomic unit's source_span must be a contiguous excerpt of the canonical question. Intent and answer type may use separate subspans of an interrogative phrase, such as "What" and "color" or "How" and "many". Number atomic units and shards consecutively from 1. Every atomic unit must be referenced by at least one shard.
+9. Natural delivery: write each shard as a normal conversational instruction or clarification. Never mention the "canonical question," "source phrase," atomic units, annotations, shards, or benchmark machinery in shard text.
+
+Set information_preserved to "yes" and added_visual_facts to "no" only after checking the final plan against the canonical question.

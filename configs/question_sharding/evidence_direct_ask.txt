@@ -1,0 +1,7 @@
+CATEGORY: direct_ask
+
+For a simple property or identity question, the answer-bearing target layer is usually sufficient by itself. Use answer_target when the layer directly depicts the entity whose identity is the answer, and attribute_source when a visible property such as color, material, or state supplies the answer.
+
+Do not automatically add a nearby object or background. Add a containing person, owner, wearer, holder, or other referent whenever the target layer alone does not visually establish the question's relation to that referent. This is required even when the answer object looks unique; the selected layers must ground why it is the asked object.
+
+Example: "What color is the man's bag?" If one retained layer visibly contains both the man-bag association and the bag's color, that layer may suffice. If the bag and man are separate layers, include both so the possessive relation and color are grounded.

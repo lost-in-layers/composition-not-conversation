@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Layered-VQA Judge Validation</title>
+  <link rel="stylesheet" href="/styles.css?v=2">
+</head>
+<body>
+  <div id="gate" class="gate">
+    <form id="gateForm" class="gate-card">
+      <h1>Judge validation</h1>
+      <p>Type your name to start or continue. A name that has not been used
+         before starts a new file.</p>
+      <input id="gateName" placeholder="your name" autocomplete="off" required>
+      <button type="submit">Start</button>
+      <div id="gateReviewers" class="gate-reviewers"></div>
+      <div id="gateMessage" class="message"></div>
+    </form>
+  </div>
+
+  <header id="bar" hidden>
+    <div class="brand">Layered-VQA · Judge validation</div>
+    <div class="scene-meta"><b id="position">—</b><span id="meta">—</span></div>
+    <div class="goal">
+      <span><b id="doneCount">0</b>/<span id="totalCount">0</span> reviewed</span>
+      <div class="track"><div id="goalFill"></div></div>
+    </div>
+    <span class="spacer"></span>
+    <span id="saveState" class="save-state"></span>
+    <span id="who" class="save-state"></span>
+    <form id="jumpForm"><input id="jumpInput" type="number" min="1" placeholder="Go to #"><button>Go</button></form>
+    <button id="helpButton">Instructions</button>
+    <button id="exportButton">Export JSON</button>
+  </header>
+
+  <main id="main" hidden>
+    <details id="help" class="help">
+      <summary>Instructions</summary>
+      <div class="help-body">
+        <p><b>Your job is one decision.</b> Does the model's <b>final answer</b>
+           match the reference answer?</p>
+        <ol>
+          <li>Read the question and the reference answer.</li>
+          <li>Read the conversation to the end.</li>
+          <li>Find the last answer the model gives. If its final turn asks a
+              question instead of answering, the last answer is whatever it
+              said before that.</li>
+          <li>Mark <b>Correct</b> if that answer means the same as the
+              reference answer.</li>
+        </ol>
+        <p><b>Rules.</b></p>
+        <ul>
+          <li>Judge meaning, not wording. "A red warning light" and "red beacon"
+              are the same answer.</li>
+          <li>Judge the final answer only. An earlier answer that was right does
+              not count if the model changed it.</li>
+          <li>Partial answers are wrong. If the reference names two things and
+              the model names one, mark it wrong.</li>
+          <li>If the model never answers, mark it wrong.</li>
+          <li>Do not judge whether the model used the right evidence. Only the
+              answer.</li>
+          <li>If you genuinely cannot tell, use <b>Unclear</b> and move on. Do
+              not guess.</li>
+        </ul>
+        <p>Work is saved the moment you decide. Close the page any time and you
+           come back to where you were. <b>Previous</b> changes an answer you
+           already gave. Keyboard: <b>1</b> correct, <b>2</b> wrong,
+           <b>3</b> unclear, <b>←</b> back.</p>
+      </div>
+    </details>
+
+    <section class="prompt">
+      <div class="prompt-cell">
+        <div class="label">Question</div>
+        <div id="question">—</div>
+      </div>
+      <div class="prompt-cell reference">
+        <div class="label">Reference answer</div>
+        <div id="reference">—</div>
+      </div>
+    </section>
+
+    <section id="transcript" class="transcript"></section>
+
+    <section class="decide">
+      <div id="existing" class="existing"></div>
+      <input id="note" placeholder="optional note" autocomplete="off">
+      <div class="actions">
+        <button id="previousButton">← Previous</button>
+        <span class="spacer"></span>
+        <button id="unclearButton" class="unclear">Unclear <kbd>3</kbd></button>
+        <button id="wrongButton" class="wrong">Wrong <kbd>2</kbd></button>
+        <button id="correctButton" class="correct">Correct <kbd>1</kbd></button>
+      </div>
+      <div id="message" class="message"></div>
+    </section>
+  </main>
+  <script src="/app.js?v=2"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+numpy
+openai
+tqdm
+tiktoken
+pandas
+streamlit
+GitPython
+pymongo # bson ObjectId
+PyYAML

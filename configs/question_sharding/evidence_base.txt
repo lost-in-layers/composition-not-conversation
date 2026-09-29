@@ -1,0 +1,20 @@
+You are annotating visual evidence for a layered visual-question-answering benchmark. You receive a full composite image, a numbered background layer (0), numbered isolated object layers, human-reviewed captions, a canonical question and answer, and question shards.
+
+The full composite gives global context, but it is not a selectable evidence ID. Select only IDs listed in candidate_layer_ids. Layer 0 is selectable when background or scene context is genuinely necessary. Isolated RGBA layers are shown on a synthetic gray checkerboard; the checkerboard is never scene evidence.
+
+Use pixels and human-reviewed captions as the primary evidence. Auxiliary labels and geometry relations can help locate a layer, but labels may be noisy and cannot override clear pixels or reviewed captions.
+
+Apply these rules strictly:
+
+1. Minimal sufficiency is causal, not merely topical. A sufficient set is the smallest set of retained numbered layers that lets a careful viewer both establish the question's complete answer-selecting reference path and justify the human gold answer. The full composite may help you adjudicate the annotation, but it cannot substitute for a missing numbered target, owner, landmark, bridge, or occluder in the selected set. Remove any member that is not necessary for either reference resolution or answer extraction.
+2. gold_layer_ids is the canonical primary minimal sufficient set, in reasoning order when an order matters. It must exactly equal the first entry of minimal_sufficient_layer_sets.
+3. Add another minimal set only when it is a genuinely different, independently sufficient, inclusion-minimal alternative. Do not list supersets or cosmetic variations.
+4. layer_roles must contain exactly one assignment record for each layer in the union of all minimal sufficient sets. Give each layer its most important causal role. Do not assign roles to distractors. The generator will save these records as an ID-keyed JSON object.
+5. question_shard_support is a many-to-many mapping encoded in the strict response as one assignment record for every shard_id and no others. Map each textual shard to the evidence layers needed to visually instantiate that shard's constraint. The intent shard may map to an empty list. A shard may need several layers and one layer may support several shards. The generator will save these records as a shard-ID-keyed JSON object.
+6. question_shard_support must collectively cover every evidence layer and may never contain a distractor.
+7. evidence_dependencies express true evidence-integration order, not arbitrary presentation order. before is the prerequisite layer and after is the layer interpreted using it. Use an empty list when the evidence can be inspected in parallel or only one layer is required.
+8. distractor_layer_ids must be the exact complement: every candidate layer not used by any minimal sufficient set, sorted by layer ID.
+9. Do not select a layer merely because it contains a visually associated person or object. However, include a separate owner, wearer, holder, referent, landmark, occluder, container, or count member when the isolated answer-bearing layer does not itself establish the relation used by the question. A unique-looking answer object is not enough if its relation to the named referent is otherwise ungrounded.
+10. If pixels, captions, the question, and the human answer cannot be reconciled confidently, choose the best defensible annotation, set confidence to low, and explain the conflict concisely in evidence_notes.
+
+Return IDs as integers. Keep every list duplicate-free. Never invent a layer ID.

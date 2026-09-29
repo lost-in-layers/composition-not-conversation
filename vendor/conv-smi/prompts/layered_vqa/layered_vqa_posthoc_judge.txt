@@ -1,0 +1,76 @@
+You are grading an answer to a visual question. You are given the whole
+conversation in which the answer was produced. Report every point at which the
+assistant put forward an answer, and whether each one was right.
+
+Question:
+[[QUESTION]]
+
+Reference answer:
+[[REFERENCE_ANSWER]]
+
+What a valid answer looks like:
+[[ANSWER_DESCRIPTION]]
+
+Conversation:
+[[CONVERSATION]]
+
+The assistant's turns are numbered `[assistant #1]`, `[assistant #2]`, and so on.
+This conversation has [[N_TURNS]] assistant turn(s), so the final one is
+`[assistant #[[N_TURNS]]]`.
+
+What counts as an answer attempt:
+- [Proposing, Not Asking] An answer attempt is a turn that puts forward a
+  candidate answer to the question. A turn that only asks for more information,
+  acknowledges the user, or restates the question is not an attempt.
+- [Hedged Attempts Count] A tentative or hedged candidate is still an attempt
+  ("it might be a computer mouse", "probably two"). Uncertainty changes nothing.
+- [Wrong Attempts Count] An attempt is an attempt whether or not it is right.
+  Most conversations contain wrong attempts, and leaving them out is the single
+  most damaging mistake you can make here: the position of the *first* attempt
+  is measured from this list, so a missed early wrong attempt moves it.
+- [One Per Turn] Report at most one attempt per assistant turn — the candidate
+  that turn settles on. Repeating the same answer in a later turn is a new
+  attempt in that later turn.
+
+How to grade each attempt:
+- [Assistant Turns Only] Grade only what the assistant says. The user turns
+  restate the question and feed it in pieces; text appearing in a user turn is
+  never evidence that the assistant answered.
+- [Meaning, Not Wording] Grade on meaning. Differences in phrasing, article use,
+  capitalization, punctuation, plurality, or verbosity do not matter.
+  "A computer mouse." and "mouse" are the same answer.
+- [Reference Is Authoritative] The reference answer is correct by definition. Do
+  not second-guess it against your own reading of the question or of the images.
+- [Partial Reference Credit] The reference may contain extra descriptive detail
+  beyond the question's core demand. An attempt is correct when it matches every
+  part the question actually asks for, even if it omits extra colour.
+- [Substantive Differences Fail] A different object, a different colour, a
+  different count, or a different spatial relation is incorrect.
+
+Fields to return:
+- `answer_attempts`: a list, in turn order, of every answer attempt. Each entry
+  is `{"turn": <assistant turn number>, "answer": "<the candidate, at most a
+  dozen words>", "correct": true or false}`. Empty list if the assistant never
+  proposed anything.
+- `first_correct_turn`: the number of the earliest attempt whose `correct` is
+  true, or 0 if none is. An earlier correct attempt counts even if the assistant
+  later changed its mind, and even if a later turn says it better.
+- `final_turn_correct`: whether assistant turn [[N_TURNS]] — the last one —
+  offers the reference answer, reading that turn alone. A conversation that
+  answered correctly early and then abandoned the answer has
+  `first_correct_turn` set and `final_turn_correct` false; that combination is
+  expected and must not be smoothed over.
+- `is_correct`: true exactly when `first_correct_turn` is greater than 0.
+- `answer_span`: the assistant's own words that gave the answer in
+  `first_correct_turn`, so the turn can be located independently. It must be a
+  contiguous stretch of assistant text copied character for character out of the
+  conversation above — not a paraphrase, not a normalized or tidied version, and
+  not your own summary. If no short span carries the answer on its own, copy the
+  whole sentence that does. Use the empty string when no attempt was correct.
+
+`answer_span` is a citation, not a verdict: never change `is_correct` because a
+clean span was hard to find, and never widen a span to make an answer look
+better than it was.
+
+You must output your answer in the following JSON format:
+{"reasoning": "<one short sentence>", "answer_attempts": [{"turn": <int>, "answer": "<short>", "correct": true or false}], "first_correct_turn": <integer>, "final_turn_correct": true or false, "answer_span": "<verbatim assistant text, or \"\">", "is_correct": true or false}

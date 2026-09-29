@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MuLAn Category Review</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <div class="brand">MuLAn · Categories</div>
+    <div class="scene-meta"><b id="sceneId">—</b><span id="position">—</span></div>
+    <div class="goal">
+      <span><b id="questionCount">0</b>/350 category questions</span>
+      <div class="track"><div id="goalFill"></div></div>
+    </div>
+    <div id="counters" class="counters">✓ 0 · ✕ 0 · ⏸ 0 · ✎ 0</div>
+    <span class="spacer"></span>
+    <span id="saveState" class="save-state"></span>
+    <form id="jumpForm"><input id="jumpInput" placeholder="Scene ID"><button>Go</button></form>
+    <button id="deferredButton">Deferred</button>
+    <button id="exportButton">Export JSON</button>
+  </header>
+
+  <main>
+    <section class="visuals">
+      <div class="viewer-panel">
+        <div class="viewer-toolbar">
+          <div id="modeTabs" class="mode-tabs"></div>
+          <span class="spacer"></span>
+          <button id="geometryButton">Geometry on</button>
+          <button id="fitButton" title="Fit image to view">Fit</button>
+          <button id="actualSizeButton" title="Zoom to 100%">1:1</button>
+          <span id="zoomInfo" class="zoom-info">—</span>
+        </div>
+        <div id="viewer" class="viewer"><div id="stage" class="stage"></div></div>
+      </div>
+      <aside id="layerRail" class="layer-rail"></aside>
+    </section>
+
+    <section class="review">
+      <div class="review-head">
+        <div>
+          <h1>Categories</h1>
+          <span id="statusBadge" class="status">Unseen</span>
+        </div>
+        <div id="categoryCounts" class="category-counts"></div>
+      </div>
+      <div id="categoryGrid" class="category-grid"></div>
+      <div id="message" class="message"></div>
+      <div class="actions">
+        <button id="previousButton">← Previous</button>
+        <button id="nextButton">Next →</button>
+        <span class="spacer"></span>
+        <button id="deferButton" class="defer">Defer</button>
+        <button id="rejectButton" class="reject">Reject & Next</button>
+        <button id="acceptButton" class="accept">Accept & Next</button>
+      </div>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>

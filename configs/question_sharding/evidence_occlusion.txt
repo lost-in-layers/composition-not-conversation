@@ -1,0 +1,5 @@
+CATEGORY: occlusion
+
+Include the occluded_target and the occluder when both are necessary to establish that one entity is hidden by the other. If the answer asks for a property directly visible on the occluded target, that target also supplies the attribute or answer, but assign its single most important role as occluded_target or answer_target according to the question.
+
+Use occlusion_resolution from occluder to occluded target when recognizing or interpreting the target depends on the foreground blocker. Do not call every overlapping layer an occluder; the pixels or reviewed captions must support the relation.

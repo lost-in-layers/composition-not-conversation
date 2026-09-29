@@ -1,0 +1,197 @@
+===============================================================================
+Layered-VQA — 1 conversation per condition (16 conditions)
+Local model: qwen3.5-9b (Qwen/Qwen3.5-9B via vLLM on localhost:8000)
+Datasets:    single-sample pilot files, task_id lvis_000000569697::direct_ask
+===============================================================================
+
+-------------------------------------------------------------------------------
+STEP 0 — run this ONCE per shell, before any command below
+-------------------------------------------------------------------------------
+# Every command must run from vendor/conv-smi: prompts, the judge cache and
+# logs/ are all opened by RELATIVE path. From anywhere else the first file
+# open fails with FileNotFoundError.
+
+cd <path>/Code/Layered-VQA/vendor/conv-smi
+export VLLM_BASE_URL=http://localhost:8000/v1
+PY=<path>/Code/Layered-VQA/.venv/bin/python
+D=../../data/derived/lic
+M="--models qwen3.5-9b --judge_model qwen3.5-9b --user_model qwen3.5-9b"
+TEXT=$D/pilot_layered_vqa_text.json
+CANON=$D/pilot_layered_vqa_visual_canonical.json
+GROUND=$D/pilot_layered_vqa_grounding.json
+ORACLE=$D/pilot_layered_vqa_oracle_gold.json
+
+# Sanity check (offline, no model calls):
+$PY agent_config.py --model qwen3.5-9b
+
+
+===============================================================================
+EXP-A
+===============================================================================
+
+--- 1. FULL — full image + full question (also EXP-A condition 1: RGB answer only) ---
+LAYERED_VQA_DATASET=$TEXT $PY run_simulations.py --dataset_file $TEXT \
+  --tasks layered_vqa $M \
+  --N_full_runs 1 --N_concat_runs 0 --N_sharded_runs 0 --N_shuffle_concat_runs 0 \
+  --N_workers 1
+
+--- 1b. EXP-A condition 2 — full img + ALL layers, answer AND layer selection ---
+# Single turn. This is the only dataset whose samples set
+# meta.response_format=answer_and_layers, so it is the only one that gets the
+# layer-selection prompt and per-conversation layer metrics.
+LAYERED_VQA_DATASET=$GROUND $PY run_simulations.py --dataset_file $GROUND \
+  --tasks layered_vqa $M \
+  --N_full_runs 1 --N_concat_runs 0 --N_sharded_runs 0 --N_shuffle_concat_runs 0 \
+  --N_workers 1
+
+--- 1c. EXP-A condition 3 — oracle: only a gold minimal sufficient layer set ---
+# Upper-bound diagnostic, not a fair retrieval result. No full RGB, no
+# background unless it is itself gold, ordinary answer-only prompt.
+LAYERED_VQA_DATASET=$ORACLE $PY run_simulations.py --dataset_file $ORACLE \
+  --tasks layered_vqa $M \
+  --N_full_runs 1 --N_concat_runs 0 --N_sharded_runs 0 --N_shuffle_concat_runs 0 \
+  --N_workers 1
+
+--- EXP-A metrics table (after 1, 1b and 1c) ---
+# Reads logs/layered_vqa/full/ and splits the three conditions by dataset_fn.
+$PY score_experiment_a.py --datasets pilot_layered_vqa_text.json \
+  pilot_layered_vqa_grounding.json pilot_layered_vqa_oracle_gold.json
+
+
+===============================================================================
+VISUAL
+===============================================================================
+
+--- 6. CONCAT_V — full question + ALL visual layers together ---
+# This is a `full`-type run on the canonical visual export, NOT --N_concat_runs:
+# that file's `question` field is the whole question and its shards carry every
+# layer. Do NOT use aligned_vq here — that file has only the gold layers, which
+# is an evidence-only control, a different condition.
+# No --user_agent needed: the guard only fires when --N_sharded_runs > 0.
+LAYERED_VQA_DATASET=$CANON $PY run_simulations.py --dataset_file $CANON \
+  --tasks layered_vqa $M \
+  --N_full_runs 1 --N_concat_runs 0 --N_sharded_runs 0 --N_shuffle_concat_runs 0 \
+  --N_workers 1
+
+--- 7. SHARDED_V — one new layer per turn, priors stay in context ---
+LAYERED_VQA_DATASET=$CANON $PY run_simulations.py --dataset_file $CANON \
+  --tasks layered_vqa $M --user_agent scripted \
+  --N_full_runs 0 --N_concat_runs 0 --N_sharded_runs 1 --N_shuffle_concat_runs 0 \
+  --N_workers 1
+
+--- 8. RECAP_V — after SHARDED_V, provide the full RGB image again ---
+# MUST run after #7.
+LAYERED_VQA_DATASET=$CANON $PY simulator_recap.py --task layered_vqa \
+  --models qwen3.5-9b --judge_model qwen3.5-9b --N_workers 1
+
+--- 9. SNOWBALL_V — every turn re-attaches all revealed layers plus the new one ---
+# A 6-layer scene can peak at 21 images in one prompt. Verified OK: this server
+# accepts 24 images per prompt, so no --limit-mm-per-prompt restart is needed.
+LAYERED_VQA_DATASET=$CANON $PY simulator_snowball.py --task layered_vqa \
+  --user_agent scripted $M --N_snowball_runs 1 --N_workers 1
+
+
+===============================================================================
+MAIN — SHARDED_VQ
+===============================================================================
+
+--- 10. SHARDED_VQ — aligned (supporting layers) vs misaligned (non-supporting) ---
+for V in aligned_vq misaligned_vq; do
+  F=$D/pilot_layered_vqa_$V.json
+  LAYERED_VQA_DATASET=$F $PY run_simulations.py --dataset_file $F \
+    --tasks layered_vqa $M --user_agent scripted \
+    --N_full_runs 0 --N_concat_runs 0 --N_sharded_runs 1 --N_shuffle_concat_runs 0 \
+    --N_workers 1
+done
+
+# NOTE for the full 300-sample run: 15 of 300 questions have a layer supported by
+# EVERY shard, so strict misalignment is impossible and the residual pairings are
+# listed in meta.misaligned_violations. Exclude those samples from any
+# aligned-vs-misaligned contrast. (The pilot sample has none — it is clean.)
+
+
+===============================================================================
+ADDITIONAL
+===============================================================================
+
+--- 11/12. EVIDENCE_FIRST_V / EVIDENCE_LAST_V ---
+# first = necessary evidence before distractors; last = distractors first.
+for V in visual_evidence_first visual_evidence_last; do
+  F=$D/pilot_layered_vqa_$V.json
+  LAYERED_VQA_DATASET=$F $PY run_simulations.py --dataset_file $F \
+    --tasks layered_vqa $M --user_agent scripted \
+    --N_full_runs 0 --N_concat_runs 0 --N_sharded_runs 1 --N_shuffle_concat_runs 0 \
+    --N_workers 1
+done
+
+--- 13. SHUFFLE_Q-CONCAT — non-intent shards concatenated in random order ---
+LAYERED_VQA_DATASET=$TEXT $PY run_simulations.py --dataset_file $TEXT \
+  --tasks layered_vqa $M \
+  --N_full_runs 0 --N_concat_runs 0 --N_sharded_runs 0 --N_shuffle_concat_runs 1 \
+  --N_workers 1
+
+SHUFFLED_SHARDED_Q was dropped from Experiment B; the `scripted-shuffle` user
+agent that served it still works if you want to run it ad hoc.
+
+
+===============================================================================
+GOTCHAS
+===============================================================================
+
+1. Set LAYERED_VQA_DATASET *and* --dataset_file to the SAME file.
+   run_simulations.py reads only the flag; snowball, recap and the viewer read
+   only the env var. A mismatch produces runs that look fine and answer the
+   wrong condition.
+
+2. The zeros are load-bearing. --N_full_runs, --N_concat_runs and
+   --N_sharded_runs all default to 1, so omitting them runs extra conditions.
+
+3. --N_*_runs is a TARGET COUNT PER SAMPLE, not a total. These pilot files hold
+   1 sample each. Pointing these commands at the real 300-sample
+   layered_vqa_*.json files would run 300 conversations per condition.
+
+4. --user_agent is MANDATORY on the four image-carrying datasets
+   (visual_canonical, aligned_vq, misaligned_vq, visual_evidence_*): the driver
+   refuses to default it, because reveal order is the manipulation. An explicit
+   `--user_agent llm` is allowed there as its own arm and logs under a different
+   conv_type, so the two never mix.
+
+5. Recap must follow its sharded run. RECAP_Q needs #3, RECAP_V needs #7.
+
+6. Runs resume. Each launch counts what is already logged for that conv_type and
+   runs only the shortfall, so re-running after an interruption costs only what
+   was missing. This is also why changing a temperature or a --user_agent starts
+   a FRESH set of runs rather than resuming: both are part of the conv_type.
+
+7. A judge outage is a failed run, not a zero — grading raises before any log
+   write, so the next launch redoes that conversation instead of freezing a
+   false is_correct:false into the results.
+
+8. OUTSTANDING: agents.yaml has assistant.per_simulator.recap.reasoning_max_tokens
+   = 3000. This model needs ~3800+ tokens just to finish thinking, so RECAP will
+   likely truncate to empty content and score a false zero. Raise it to 8000
+   (matching the judge) before trusting RECAP_Q / RECAP_V results.
+
+
+===============================================================================
+OUTPUT
+===============================================================================
+logs/layered_vqa/<conv_type>/<conv_type>_layered_vqa_qwen3.5-9b.jsonl
+logs/layered_vqa/judge_cache.jsonl
+
+One JSON record per conversation: full trace, is_correct, score, judge_model and
+the git commit. logs/ is gitignored.
+
+Inspect in the browser:
+  $PY -m streamlit run app_conv_viewer.py
+
+Expected conv_type folders after all 16:
+  full                        (#1 FULL, #1b/#1c EXP-A, #6 CONCAT_V — distinguished by dataset_fn)
+  concat                      (#2)
+  sharded                     (#3)
+  recap-*                     (#4, #8)
+  snowball                    (#5)
+  sharded-scripted            (#7, #10 x2, #11, #12)
+  snowball-scripted           (#9)
+  shuffle-concat              (#13)
+  sharded-scripted-shuffle    (#14)

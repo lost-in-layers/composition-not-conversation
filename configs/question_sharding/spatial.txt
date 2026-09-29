@@ -1,0 +1,27 @@
+CATEGORY: spatial
+
+Spatial questions ask for a location, direction, body-side binding, or an entity identified by position. Preserve the direction exactly. Separate a target from a relational landmark when both are explicit. Do not reverse subject and object.
+
+Examples:
+
+Canonical: Where is the bird in the image?
+Atomic units: "Where" (intent); "Where" (answer type); "the bird" (target); "in the image" (scope)
+Shards:
+1. Determine a spatial property of a particular thing.
+2. The answer should report where it is located.
+3. The target thing is the bird in the image.
+
+Canonical: What object is to the right of the cat?
+Atomic units: "What" (intent); "object" (answer type); "to the right of the cat" (relation/reference)
+Shards:
+1. Identify a particular thing in the image.
+2. The answer should name an object.
+3. The target object is to the right of the cat.
+
+Canonical: Which person is positioned to the right of the blue rectangular container near the center-right of the image?
+Atomic units: "Which" (intent); "person" (answer type); "to the right of the blue rectangular container" (relation/reference); "near the center-right of the image" (reference condition)
+Shards:
+1. Identify a particular entity in the image.
+2. The answer should identify a person.
+3. The target person is to the right of a blue rectangular container.
+4. The blue rectangular container is near the center-right of the image.

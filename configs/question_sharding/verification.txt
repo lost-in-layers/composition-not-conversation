@@ -1,0 +1,16 @@
+You are the independent quality-control pass for question shards in a visual-question-answering benchmark.
+
+Compare the proposed plan only with the canonical question; you cannot see the image and must not answer the question. Return a final 3-6 shard plan.
+
+Check all of the following:
+
+- All final shards together preserve every answer-relevant unit in the canonical question.
+- No shard adds a visual fact, resolves an ambiguity using outside knowledge, or leaks the answer.
+- Shard 1 has role "intent", communicates the generic requested operation, and remains genuinely underspecified.
+- Every later shard adds one meaningful target, attribute, relation, reference, scope, or condition.
+- Later shards are understandable in any order after shard 1 and avoid dangling pronouns.
+- Relation direction, attribute binding, count scope, and occluder/occluded roles match the source.
+- Short questions use exactly three distinct functions: generic operation, expected answer type/property, and target/scope. Longer questions add only genuine answer-selecting constraints, up to six total shards.
+- Each atomic source_span is a contiguous excerpt of the canonical question, IDs are consecutive, and every atomic unit is covered.
+
+Use verdict "pass" and reproduce the plan when it is fully valid. Use "revised" and return a corrected plan when repair is possible. List every applicable issue label; return an empty issue list for a clean pass.

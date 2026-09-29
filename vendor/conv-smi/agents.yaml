@@ -1,0 +1,105 @@
+# What each agent sends on every model call.
+#
+# Three agents make every model call in the simulator:
+#
+#   assistant — the model under test, the one whose answers are graded
+#   user      — the simulated user that reveals shards (LLM agent only; the
+#               scripted agent makes no model calls, so nothing here reaches it)
+#   judge     — grades a finished conversation, once, over its whole transcript
+#
+# `models.yaml` says *where* a call goes; this file says *how* it is made.
+# Editing a number here changes every call that agent makes, in all four
+# simulators (full/concat, sharded, snowball, recap).
+#
+# Point somewhere else with LAYERED_VQA_AGENTS_CONFIG. An unknown key is an
+# error rather than an ignored line: a misspelled `max_tokens` that "worked"
+# would silently run a whole experiment on the provider's default budget.
+#
+# TEMPERATURE IS PART OF A RUN'S IDENTITY. Any assistant or user temperature
+# other than 1.0 adds a suffix to the conv_type a run logs under (`full-t0.7`,
+# `sharded-at0.7-ut1.0`, …), so runs at different temperatures land in
+# different log folders and are never counted as each other. That is
+# deliberate; it also means changing a temperature below starts a fresh set of
+# runs rather than resuming the existing ones.
+#
+# top_p and top_k get no such suffix. Changing either one changes how the
+# assistant samples without changing where the run logs, so a folder can end
+# up holding conversations from two different sampling profiles. Move or
+# archive the old logs before changing them mid-experiment.
+
+# ---------------------------------------------------------------------------
+# Settings each agent accepts. A deleted line falls back to the value shipped
+# in `agent_config.BUILTIN` for that agent, which is what the code did before
+# this file existed; `null` means the setting is not sent at all.
+#
+#   temperature           sampling temperature
+#   top_p                 nucleus sampling mass. 1.0 considers every token and
+#                         is what every backend here defaults to, so the
+#                         shipped value samples exactly as before it was sent
+#   top_k                 keep only the k likeliest tokens. 0 disables it, so
+#                         the shipped value truncates nothing and samples
+#                         exactly as before it was sent — set a positive cap
+#                         (e.g. 50) to actually narrow sampling. Current vLLM
+#                         and OpenRouter both read 0 as "disabled"; vLLM also
+#                         still accepts its old -1 spelling, but vLLM before
+#                         ~0.8.5 rejects 0 with a 400 ("top_k must be -1
+#                         (disable), or at least 1"). null omits it entirely.
+#                         Not every OpenRouter provider honours it; vLLM does
+#   max_tokens            cap on the reply; null means no cap is sent
+#   reasoning_max_tokens  used instead of max_tokens when the model matches
+#                         `reasoning_models` below. This is a completion cap,
+#                         not a requirement to emit reasoning; with thinking
+#                         disabled it simply caps the direct response.
+#   timeout               seconds per request; multi-image vision prompts and
+#                         long reasoning completions routinely pass 30s, and a
+#                         timeout that fires on healthy calls triples the bill
+#                         via retries
+#   max_retries           attempts per call, including the first. 4xx failures
+#                         other than timeout/rate-limit are never retried: the
+#                         request itself is wrong, so resending cannot help
+# ---------------------------------------------------------------------------
+
+agents:
+  assistant:
+    temperature: 1.0
+    top_p: 1.0
+    top_k: 0
+    max_tokens: 1024
+    reasoning_max_tokens: 16384
+    # Dedicated reasoning checkpoints can legitimately use this longer
+    # timeout; direct-response models remain capped by max_tokens above.
+    timeout: 600
+    max_retries: 3
+
+  user:
+    temperature: 1.0
+    top_p: 1.0
+    top_k: 0
+    max_tokens: 1024
+    reasoning_max_tokens: 16384
+    timeout: 300
+    max_retries: 3
+
+  judge:
+    # Keep the sampling profile identical across roles. Verdicts are cached by
+    # transcript and judge model so repeated grading can reuse the same result.
+    temperature: 1.0
+    top_p: 1.0
+    top_k: 0
+    max_tokens: 1024
+    reasoning_max_tokens: 16384
+    timeout: 600
+    max_retries: 3
+
+# Substrings matched against the model name. A match swaps max_tokens for
+# reasoning_max_tokens.
+reasoning_models:
+  - o1
+  - o3
+  - deepseek-r1
+  - glm4.1v-9b-thinking
+  # MiniMax M2/M3 reason before answering and bill that to the completion, so
+  # on the plain 1024-token cap the whole budget goes to reasoning and the API
+  # returns `content: null` with finish_reason="length" — which reads
+  # downstream as a judge outage on every call, not as a budget problem.
+  - minimax

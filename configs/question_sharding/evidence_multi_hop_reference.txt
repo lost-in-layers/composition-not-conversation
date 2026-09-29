@@ -1,0 +1,5 @@
+CATEGORY: multi_hop_reference
+
+Follow the complete reference chain from the described landmark or entity to the answer-bearing target. Include the target plus each distinct retained layer whose visual evidence is necessary to resolve a hop. Use reference_landmark for the starting anchor, relational_bridge for intermediate entities, and answer_target or attribute_source for the final answer-bearing layer.
+
+Dependencies should encode the genuine chain in prerequisite order. For example, if the question identifies a person relative to a girl and then asks about that person's bag, the girl's layer precedes the person's layer for reference_resolution, and the person's layer precedes the bag layer for answer_extraction or attribute_binding. Omit a chain member only if the same retained layer visibly and unambiguously contains both hops.

@@ -1,0 +1,30 @@
+CATEGORY: attribute_binding
+
+Attribute-binding questions ask for a property of one entity selected by attributes or relations. Shard 1 asks for the property. Later shards establish the target entity and each answer-selecting modifier. Do not detach a modifier so far that it could bind to the wrong entity.
+
+Examples:
+
+Canonical: what is the color of the cat that is looking up?
+Atomic units: "what" (intent); "color" (answer type); "the cat" (target); "looking up" (attribute)
+Shards:
+1. Determine a property of a particular animal in the image.
+2. The requested property is its color.
+3. The target animal is the cat.
+4. The target cat is looking up.
+
+Canonical: What color is the object on the desk to the right of the cat?
+Atomic units: "What" (intent); "color" (answer type); "the object on the desk" (target); "to the right of the cat" (relation)
+Shards:
+1. Determine a property of a particular object.
+2. The requested property is its color.
+3. The target object is on the desk.
+4. The target object is to the right of the cat.
+
+Canonical: What color is the long neck of the bird positioned behind and slightly above the other bird?
+Atomic units: "What" (intent); "color" (answer type); "the long neck of the bird" (target); "positioned behind" (relation); "slightly above the other bird" (relation/reference)
+Shards:
+1. Determine a property of a particular part of a bird.
+2. The requested property is its color.
+3. The target part is the bird's long neck.
+4. The target bird is positioned behind the other bird.
+5. The target bird is slightly above the other bird.

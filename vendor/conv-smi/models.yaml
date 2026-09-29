@@ -1,0 +1,132 @@
+# Which endpoint serves each model.
+#
+# Everything the simulator talks to speaks the OpenAI chat-completions API:
+# open-weight models through a local vLLM server, closed-weight models through
+# OpenRouter, which speaks the same API. This file is the only place that says
+# which is which — adding a model is a config edit, not a code change.
+#
+# The keys under `models:` are the names you pass to --models, --judge_model
+# and --user_model, and they are what gets written into the logs. `model:` is
+# the id actually sent on the wire, so an upstream rename does not invalidate
+# a run's logs.
+#
+# For a one-off model you have not added here, `backend:id` works directly,
+# e.g. --judge_model openrouter:openai/gpt-4o-mini.
+
+backends:
+  vllm:
+    # VLLM_BASE_URL wins when set; `base_url` is the fallback.
+    base_url_env: VLLM_BASE_URL
+    base_url: http://localhost:8000/v1
+    api_key_env: VLLM_API_KEY
+    api_key: EMPTY          # vLLM only checks this if it was started with --api-key
+
+  openrouter:
+    base_url: https://openrouter.ai/api/v1
+    api_key_env: OPENROUTER_API_KEY
+
+models:
+  # ---- open weights, served locally by vLLM ---------------------------------
+  # `model:` must match what you passed to `vllm serve --served-model-name`.
+  local-vlm:
+    backend: vllm
+    model: local-vlm
+  local-model:
+    backend: vllm
+    model: local-model
+  qwen2.5-vl-7b:
+    backend: vllm
+    model: Qwen/Qwen2.5-VL-7B-Instruct
+  qwen2.5-vl-32b:
+    backend: vllm
+    model: Qwen/Qwen2.5-VL-32B-Instruct
+  qwen2.5-vl-3b:
+    backend: vllm
+    model: qwen2.5-vl-3b
+  qwen3-vl-4b:
+    backend: vllm
+    model: qwen3-vl-4b
+  qwen3-vl-8b:
+    backend: vllm
+    model: qwen3-vl-8b
+  qwen3-vl-30b-a3b:
+    backend: vllm
+    model: qwen3-vl-30b-a3b
+  qwen3.5-9b:
+    backend: vllm
+    model: Qwen/Qwen3.5-9B
+  qwen3.6-27b:
+    backend: vllm
+    model: qwen3.6-27b
+  ministral3-8b-instruct:
+    backend: vllm
+    model: ministral3-8b-instruct
+  ministral3-14b-instruct:
+    backend: vllm
+    model: ministral3-14b-instruct
+  pixtral-12b:
+    backend: vllm
+    model: pixtral-12b
+  internvl2.5-8b:
+    backend: vllm
+    model: internvl2.5-8b
+  internvl3-8b:
+    backend: vllm
+    model: internvl3-8b
+  internvl3.5-8b:
+    backend: vllm
+    model: internvl3.5-8b
+  molmo2-8b:
+    backend: vllm
+    model: molmo2-8b
+  gemma4-e4b-it:
+    backend: vllm
+    model: gemma4-e4b-it
+  gemma4-12b-it:
+    backend: vllm
+    model: gemma4-12b-it
+  phi4-reasoning-vision-15b-nothink:
+    backend: vllm
+    model: phi4-reasoning-vision-15b-nothink
+  minicpm-v4.6:
+    backend: vllm
+    model: minicpm-v4.6
+  glm4.1v-9b-thinking:
+    backend: vllm
+    model: glm4.1v-9b-thinking
+
+  # ---- closed weights, through OpenRouter -----------------------------------
+  # Every one of these bills your OpenRouter account per call.
+  gpt-4o-mini:
+    backend: openrouter
+    model: openai/gpt-4o-mini
+  gpt-4o:
+    backend: openrouter
+    model: openai/gpt-4o
+  gpt-5.6-luna:
+    backend: openrouter
+    model: openai/gpt-5.6-luna
+  claude-sonnet-4.5:
+    backend: openrouter
+    model: anthropic/claude-sonnet-4.5
+  claude-opus-4.5:
+    backend: openrouter
+    model: anthropic/claude-opus-4.5
+  gemini-2.5-flash:
+    backend: openrouter
+    model: google/gemini-2.5-flash
+  gemini-2.5-pro:
+    backend: openrouter
+    model: google/gemini-2.5-pro
+
+  # The three run by run_all_closed_models.sh. `model:` is the id sent on the
+  # wire, so check each one against OpenRouter's model list before a paid
+  # launch: a renamed or mis-typed id 404s on the first call, which the smoke
+  # test at --n 1 catches for the price of a couple of requests.
+  # gpt-5.6-luna is defined above.
+  minimax-m3:
+    backend: openrouter
+    model: minimax/minimax-m3
+  gemini-3.7-flash:
+    backend: openrouter
+    model: google/gemini-3.7-flash

@@ -1,0 +1,5 @@
+openai>=2.16.0,<3
+pillow>=12.1,<13
+pydantic>=2.12,<3
+python-dotenv>=1.0,<2
+tqdm>=4.67,<5

@@ -1,0 +1,5 @@
+CATEGORY: spatial
+
+A relation between two distinct entities normally requires both entity layers: one as answer_target or reference_entity and the other as reference_landmark or spatial_context. A spatial claim cannot normally be grounded from only one isolated entity.
+
+Use background_context only when the asked relation is to a region or scene structure represented solely in layer 0. For a directional or positional comparison, relation_resolution normally places the landmark before the target whose position is being interpreted. Avoid dependencies when the answer is obtained by symmetric joint inspection and no prerequisite direction is meaningful.

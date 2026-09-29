@@ -1,0 +1,11 @@
+{
+  "source": "/Users/anonymous/Desktop/Layered-VQA/data/derived/mulan-human-review/reviewer_2/question-shards-reviewed.json",
+  "variant": "misaligned_vq",
+  "layer_order": null,
+  "opener_style": "casual",
+  "flatten_mode": "white",
+  "include_full_image": false,
+  "detail": "high",
+  "sample_count": 300,
+  "skipped": []
+}

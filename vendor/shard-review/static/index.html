@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Layered-VQA Shard Review</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <div class="brand">Shard Review</div>
+    <div class="scene-meta"><b id="sceneId">—</b><span id="questionCategory">—</span><span id="position">—</span></div>
+    <span id="statusBadge" class="status">Loading</span>
+    <div class="spacer"></div>
+    <div class="goal"><span><b id="reviewedCount">0</b>/<span id="availableCount">0</span> reviewed</span><div class="track"><div id="goalFill"></div></div></div>
+    <div id="counters" class="counters"></div>
+    <form id="jumpForm"><input id="jumpInput" placeholder="question or scene ID"><button>Go</button></form>
+    <button id="previousButton">←</button><button id="nextButton">→</button>
+  </header>
+  <main>
+    <section class="visuals">
+      <div class="viewer-panel">
+        <div class="viewer-toolbar">
+          <div id="modeTabs" class="mode-tabs"></div>
+          <button id="geometryButton">Geometry on</button>
+          <button id="fitButton">Fit</button><button id="actualSizeButton">1:1</button>
+          <span id="zoomInfo" class="zoom-info"></span>
+        </div>
+        <div id="viewer" class="viewer"><div id="stage" class="stage"></div></div>
+      </div>
+      <aside id="layerRail" class="layer-rail"></aside>
+    </section>
+    <section class="review">
+      <div class="review-head">
+        <div>
+          <div class="eyebrow">Canonical question</div>
+          <h1 id="questionText">—</h1>
+          <label class="answer"><span>Human answer</span><input id="answerText" aria-label="Human answer"></label>
+        </div>
+        <div class="review-meta">
+          <span id="modelStatus" class="pill"></span><span id="confidence" class="pill"></span><span id="shardability" class="pill"></span>
+        </div>
+      </div>
+
+      <div class="section-title"><h2>Question shards</h2><span>Editable · 3–6 turns</span></div>
+      <div id="shardGrid" class="shard-grid"></div>
+
+      <div class="section-title"><h2>Evidence annotation</h2><span>All layer IDs refer to the rail above</span></div>
+      <div class="evidence-grid">
+        <label>Gold layer IDs<textarea id="goldLayers" rows="2"></textarea></label>
+        <label>Minimal sufficient layer sets<textarea id="minimalSets" rows="3"></textarea></label>
+        <label>Layer roles<textarea id="layerRoles" rows="5"></textarea></label>
+        <label>Shard → layer support<textarea id="shardSupport" rows="5"></textarea></label>
+        <label>Evidence dependencies<textarea id="dependencies" rows="5"></textarea></label>
+        <label>Distractor layer IDs<textarea id="distractors" rows="2"></textarea></label>
+        <label class="wide">Evidence notes<textarea id="evidenceNotes" rows="3"></textarea></label>
+        <label>Confidence<select id="confidenceEdit"><option>high</option><option>medium</option><option>low</option></select></label>
+      </div>
+
+      <details open class="info-panel"><summary>Atomic units · editable JSON</summary><textarea id="atomicUnits" rows="9"></textarea></details>
+      <details class="info-panel"><summary>Validation and review flags</summary><pre id="validationInfo"></pre></details>
+      <details class="info-panel"><summary>Generation metadata and token usage</summary><pre id="generationInfo"></pre></details>
+      <details class="info-panel"><summary>Complete scene metadata, geometry, relations, and excluded layers</summary><pre id="sceneInfo"></pre></details>
+      <details class="info-panel"><summary>Raw generated question record</summary><pre id="rawRecord"></pre></details>
+
+      <div id="message" class="message"></div>
+      <div class="actions">
+        <button id="acceptButton" class="accept">Accept ✓</button>
+        <button id="rejectButton" class="reject">Reject ✕</button>
+        <button id="deferButton" class="defer">Defer</button>
+        <button id="flaggedButton">Next flagged</button>
+        <button id="deferredButton">Open deferred</button>
+        <button id="exportButton">Export reviewed JSON</button>
+        <span id="saveState" class="save-state"></span>
+      </div>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>

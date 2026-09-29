@@ -1,0 +1,7 @@
+CATEGORY: attribute_binding
+
+These questions request an attribute of a target selected by another attribute or relation. Include the attribute-bearing target layer plus every distinct layer required to bind the referring expression correctly.
+
+If the target layer itself visibly contains both the requested attribute and the selecting property, it may be sufficient alone. If a landmark or owner is needed to distinguish the target, include it as reference_landmark or reference_entity. A selecting layer should usually precede the answer-bearing layer through reference_resolution or attribute_binding.
+
+Do not add a landmark when the target is already uniquely and explicitly represented by one retained layer.

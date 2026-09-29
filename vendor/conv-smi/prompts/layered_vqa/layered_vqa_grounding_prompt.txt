@@ -1,0 +1,19 @@
+[[IMAGE_MANIFEST]]
+[[QUESTION]]
+
+Answer the question, then name the layers you actually used as evidence — the
+smallest set of layers that supports your answer. Refer to a layer by the number
+in its label above (for example `layer 3`), never by its position in the list.
+
+Reply in exactly this format, and nothing else — no preamble before it, no
+commentary after it, and all four lines present every time:
+
+Answer: <short phrase>
+Layers: <the layer numbers you used, separated by commas, or `none`>
+Confidence: <a number between 0 and 1>
+Why: <one sentence saying what each listed layer contributed>
+
+List only the layers that carry evidence you actually used. Adding layers you
+merely looked at makes the set wrong, and so does leaving out one the answer
+depends on. Give a single best answer rather than alternatives, and let
+`Confidence` carry your uncertainty.

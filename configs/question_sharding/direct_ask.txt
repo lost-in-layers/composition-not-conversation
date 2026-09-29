@@ -1,0 +1,28 @@
+CATEGORY: direct_ask
+
+Direct questions usually contain a requested answer type/property and a target. Keep a bare target separate from the intent. If the question includes genuine evidence conditions, separate those conditions without inventing a richer referring expression.
+
+Examples:
+
+Canonical: What is the color of the bulb?
+Atomic units: "What" (intent); "color" (answer type); "the bulb" (target)
+Shards:
+1. Determine a property of a particular object in the image.
+2. The requested property is its color.
+3. The target object is the bulb.
+
+Canonical: What objects are hanging on the clothesline?
+Atomic units: "What" (intent); "objects" (answer type); "hanging on the clothesline" (target condition)
+Shards:
+1. Identify particular things in the image.
+2. The answer should name objects.
+3. The target objects are hanging on the clothesline.
+
+Canonical: What sport is the athlete in the image most likely playing, given that he is standing on a marked court and holding a racket in a serving posture?
+Atomic units: "What" (intent); "sport" (answer type); "the athlete in the image" (target); "standing on a marked court" (condition); "holding a racket in a serving posture" (condition)
+Shards:
+1. Identify what activity a particular person is most likely performing.
+2. The answer should name a sport.
+3. The target person is the athlete in the image.
+4. The athlete is standing on a marked court.
+5. The athlete is holding a racket in a serving posture.

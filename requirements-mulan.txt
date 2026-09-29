@@ -1,0 +1,5 @@
+huggingface_hub
+numpy
+pillow
+requests
+tqdm
